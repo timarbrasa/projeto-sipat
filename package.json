@@ -1,0 +1,18 @@
+{
+  "name": "videotest",
+  "version": "1.0.0",
+  "description": "Seu Projeto VideoTest Original com Escape Room SIPAT MARBRASA",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.19.2",
+    "cors": "^2.8.5",
+    "sequelize": "^6.37.3",
+    "sqlite3": "^5.1.7"
+  }
+}
