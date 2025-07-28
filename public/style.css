@@ -77,7 +77,6 @@ header h1 {
 
 /* --- Estilos para a Tela de Início --- */
 #start-screen {
-    display: flex;
     justify-content: space-around;
     padding-bottom: 170px;
     background: #171717;
@@ -104,6 +103,7 @@ header h1 {
 
 .icones {
     display: flex;
+    color: #66ff66;
     flex-direction: row;
     gap: 10px;
     align-items: center;
@@ -212,12 +212,17 @@ button:active {
     background-color: #282828; /* Mantém o fundo escuro para o ambiente de jogo */
     color: #e0e0e0;
     border: 1px solid #444; /* Borda mais escura */
+    padding-top: 10px;
     justify-content: flex-start; /* Alinha o conteúdo ao topo para permitir rolagem */
-    padding-top: 30px;
+    padding-top: 0px;
+    height: 85vh;
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 .game-container {
     width: 100%;
+    margin-top: 10px;
     max-width: 850px; /* Aumenta a largura máxima do container de jogo */
     box-sizing: border-box;
     padding: 0 15px; /* Padding horizontal para não colar nas bordas */

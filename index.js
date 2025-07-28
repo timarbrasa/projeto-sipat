@@ -25,7 +25,7 @@ const RankingEntry = database.define('RankingEntry', { // Use 'database' em vez 
 }, {
     tableName: 'RankingEntries' // Nome explícito da tabela para evitar conflitos se necessário
 });
-//teste de conflitos
+
 // --- Configurações do Express ---
 app.use(express.json()); // Habilita o parsing de JSON no corpo das requisições
 // O seu projeto VideoTest já deve ter CORS configurado ou não precisar se for apenas local.
@@ -61,7 +61,6 @@ app.use((req, res, next) => {
 //         }
 //     });
 // }
-
 
 // --- ENDPOINTS DO RANKING (integrados aqui) ---
 
@@ -119,15 +118,20 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-
 // --- Sincronizar o Banco de Dados e Iniciar o Servidor ---
-// Mantenha seu bloco 'try/catch' de sincronização do banco de dados,
-// mas adicione a sincronização do RankingEntry também.
-// Seu código original: database.sync().then(() => { app.listen(9443, ...)})
 try {
     // Sincroniza o banco de dados principal (incluindo o modelo Video e RankingEntry)
-    database.sync({ force: false }).then(() => { // force: false para não apagar dados existentes
+    database.sync({ force: false }).then(async () => { // force: false para não apagar dados existentes
         console.log('[DB] Banco de dados principal e modelos sincronizados!');
+
+        // Limpar dados já registrados na tabela RankingEntries
+        /*try {
+            await RankingEntry.destroy({ where: {}, truncate: true });
+            console.log('[DB] Dados da tabela RankingEntries limpos com sucesso!');
+        } catch (error) {
+            console.error('[DB] Erro ao limpar dados da tabela RankingEntries:', error);
+        }*/
+
         app.listen(9443, () => { // Sua porta original
             console.log('Servidor rodando na porta 9443');
             console.log(`[Server] Acesse seu frontend em: https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`);

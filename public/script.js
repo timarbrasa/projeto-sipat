@@ -46,32 +46,32 @@ const ADMIN_PASSWORD = 'admin';
 // Se você continuar tendo problemas de comunicação, use a URL absoluta do seu repl aqui:
 // Exemplo: const BACKEND_URL = `https://SEU_NOME_DO_REPL.SEU_NOME_DE_USUARIO.repl.co`;
 // Você pode encontrar essa URL na aba "Console" ou "Webview" do Replit após rodar o projeto.
-const BACKEND_URL = ''; // Deixe vazio se estiver na mesma URL que o frontend
+const BACKEND_URL = 'http://localhost:9443'; // Deixe vazio se estiver na mesma URL que o frontend
 
 
 // --- Dados dos Enigmas (personalizáveis) ---
 const puzzles = [
     {
         id: 'puzzle1',
-        question: 'Qual é o nome do equipamento de proteção individual (EPI) usado para proteger a cabeça contra impactos e quedas de objetos?',
+        question: '🧩 Toda prevenção começa com uma palavra. Monte o quebra-cabeça e descubra o segredo para evitar acidentes. 🧠',
         answer: '1',
         digitIndex: 0
     },
     {
         id: 'puzzle2',
-        question: 'Qual é a principal medida para prevenir acidentes elétricos, onde a corrente não encontra caminho fácil?',
+        question: '🧤 Nem todo equipamento está pronto para o jogo. Inspecione os EPIs e descubra qual está fora das regras da segurança. 🕵️',
         answer: '2',
         digitIndex: 1
     },
     {
         id: 'puzzle3',
-        question: 'O que significa a sigla "CIPA", uma comissão fundamental para a segurança no trabalho?',
+        question: '⚠️ Um risco escondido pode comprometer toda a equipe. Encontre o perigo e proteja sua rota para a vitória. 🔍',
         answer: '3',
         digitIndex: 2
     },
     {
         id: 'puzzle4',
-        question: 'Qual é o número de telefone de emergência para acionar a brigada de incêndio no Brasil?',
+        question: '🔥 O setor está em chamas! Analise o mapa e escolha a rota que garante a saída segura da equipe. 🚪',
         answer: '4',
         digitIndex: 3
     }
