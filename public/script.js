@@ -9,6 +9,17 @@ const teamNameInput = document.getElementById('team-name');
 const startButton = document.getElementById('start-button');
 const adminLoginButton = document.getElementById('admin-login-button');
 
+
+// Carrega o som
+const somInicio = new Audio('sounds/play.mp3');
+
+// Adiciona o evento ao botão
+document.getElementById('start-button').addEventListener('click', () => {
+    somInicio.play();
+    // Aqui você pode colocar o que mais acontece ao iniciar o jogo
+});
+
+
 // Elementos da tela de login
 const adminUsernameInput = document.getElementById('admin-username');
 const adminPasswordInput = document.getElementById('admin-password');
