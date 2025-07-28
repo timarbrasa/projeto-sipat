@@ -25,7 +25,7 @@ const RankingEntry = database.define('RankingEntry', { // Use 'database' em vez 
 }, {
     tableName: 'RankingEntries' // Nome explícito da tabela para evitar conflitos se necessário
 });
-
+//teste de conflitos
 // --- Configurações do Express ---
 app.use(express.json()); // Habilita o parsing de JSON no corpo das requisições
 // O seu projeto VideoTest já deve ter CORS configurado ou não precisar se for apenas local.
