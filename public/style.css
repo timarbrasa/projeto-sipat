@@ -243,18 +243,20 @@ button:active {
 
 /* Cronômetro */
 .timer {
-    font-family: 'monospace'; /* Mantém fonte digital */
-    font-size: 4em; /* Um pouco maior */
-    color: red; /* Verde neon para o timer */
-    background-color: #0d0d0d; /* Fundo bem escuro para o display */
+    font-family: 'monospace';
+    font-size: 4em;
+    color: red;
+    box-shadow: 1.5px 1px 25px rgb(255 0 0 / 79%);
+    background-color: #0d0d0d;
     border: 2px solid red;
     padding: 10px 25px;
     border-radius: 8px;
     display: inline-block;
     margin-bottom: 35px;
-    box-shadow: 0 0 25px (255, 0, 0, 0.4); /* Sombra de brilho verde */
     letter-spacing: 3px;
     font-weight: bold;
+    position: relative;
+    top: 1vw;
 }
 
 /* Área de Enigmas */
