@@ -11,13 +11,10 @@ const adminLoginButton = document.getElementById('admin-login-button');
 
 
 // Carrega o som
-const somInicio = new Audio('sounds/play.mp3');
+const somInicio = new Audio('sounds/startSound.mp3');
+const correctAnswerSound = new Audio('sounds/certa.mp3');
+const incorrectAnswerSound = new Audio('sounds/errado.mp3');
 
-// Adiciona o evento ao botão
-document.getElementById('start-button').addEventListener('click', () => {
-    somInicio.play();
-    // Aqui você pode colocar o que mais acontece ao iniciar o jogo
-});
 
 
 // Elementos da tela de login
@@ -153,6 +150,7 @@ function generateRandomPassword() { // Abre chave de generateRandomPassword
 }
 
 function renderGameScreen() {
+      somInicio.play();
     let puzzlesHTML = puzzles.map((puzzle, index) => `
         <div class="puzzle-box" id="${puzzle.id}">
             <h3>Enigma ${index + 1}</h3>
@@ -276,6 +274,7 @@ function checkPuzzleAnswer(event) {
     const correctAnswer = puzzles[puzzleIndex].answer.toLowerCase();
 
     if (userAnswer === correctAnswer) {
+        correctAnswerSound.play();
         feedbackDiv.textContent = 'Correto! Você encontrou um dígito!';
         feedbackDiv.className = 'puzzle-feedback correct';
         solvedPuzzles[puzzleIndex] = true;
@@ -287,6 +286,7 @@ function checkPuzzleAnswer(event) {
         passwordDigits[puzzles[puzzleIndex].digitIndex] = digitToReveal;
         updateFinalPasswordDisplay();
     } else {
+        incorrectAnswerSound.play();
         feedbackDiv.textContent = 'Incorreto! Tente novamente.';
         feedbackDiv.className = 'puzzle-feedback incorrect';
         applyPenalty();

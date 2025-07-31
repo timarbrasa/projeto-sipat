@@ -4,7 +4,9 @@
   "description": "Seu Projeto VideoTest Original com Escape Room SIPAT MARBRASA",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "abrir-html": "start public/painel_resultados.html"
+
   },
   "keywords": [],
   "author": "",
