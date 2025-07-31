@@ -9,12 +9,10 @@ const teamNameInput = document.getElementById('team-name');
 const startButton = document.getElementById('start-button');
 const adminLoginButton = document.getElementById('admin-login-button');
 
-
 // Carrega o som
 const somInicio = new Audio('sounds/startSound.mp3');
 const correctAnswerSound = new Audio('sounds/certa.mp3');
 const incorrectAnswerSound = new Audio('sounds/errado.mp3');
-
 
 
 // Elementos da tela de login
@@ -30,6 +28,9 @@ let correctPassword = '';
 let solvedPuzzles = [false, false, false, false];
 let passwordDigits = ['', '', '', ''];
 
+// Novo array para controlar quais dígitos foram revelados e devem ser protegidos
+let revealedDigits = [false, false, false, false];
+
 // Elemento visual para a penalidade
 const penaltyLight = document.getElementById('penalty-light');
 
@@ -38,13 +39,7 @@ const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'admin';
 
 // --- URL BASE DO BACKEND ---
-// No Replit, a URL relativa (string vazia) geralmente funciona se o frontend e backend
-// estiverem no mesmo Repl e rodando na mesma porta.
-// Se você continuar tendo problemas de comunicação, use a URL absoluta do seu repl aqui:
-// Exemplo: const BACKEND_URL = `https://SEU_NOME_DO_REPL.SEU_NOME_DE_USUARIO.repl.co`;
-// Você pode encontrar essa URL na aba "Console" ou "Webview" do Replit após rodar o projeto.
-const BACKEND_URL = 'http://localhost:9443'; // Deixe vazio se estiver na mesma URL que o frontend
-
+const BACKEND_URL = 'http://localhost:9443'; // Ajuste conforme necessário
 
 // --- Dados dos Enigmas (personalizáveis) ---
 const puzzles = [
@@ -75,7 +70,7 @@ const puzzles = [
 ];
 
 // --- Sistema de Ranking (agora gerenciado pelo backend) ---
-let ranking = []; // Não precisamos mais carregar do localStorage diretamente aqui
+let ranking = [];
 
 // --- Funções Auxiliares ---
 
@@ -99,7 +94,8 @@ startButton.addEventListener('click', () => {
     currentTeamName = teamNameInput.value.trim();
 
     if (currentTeamName === '') {
-        alert('Por favor, digite o nome da sua equipe para iniciar o jogo!');
+        let message = 'Por favor, digite o nome da sua equipe para iniciar o jogo!';
+        showAlert(message);
         return;
     }
 
@@ -121,8 +117,8 @@ loginSubmitButton.addEventListener('click', () => {
     const password = adminPasswordInput.value.trim();
 
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-        alert('Login de Administrador bem-sucedido!');
-        fetchRankingAndDisplay(); // Chama a função para buscar e mostrar o ranking
+        console.log('Login de Administrador bem-sucedido!');
+        fetchRankingAndDisplay();
         showScreen(rankingScreen);
     } else {
         alert('Usuário ou senha incorretos. Tente novamente.');
@@ -130,21 +126,20 @@ loginSubmitButton.addEventListener('click', () => {
     }
 });
 
-// --- Lógica do Jogo Principal (inalterada) ---
+// --- Lógica do Jogo Principal ---
 
-function initializeGame() { // Abre chave de initializeGame
+function initializeGame() {
     timeLeft = 300;
     solvedPuzzles = [false, false, false, false];
     passwordDigits = ['', '', '', ''];
+    revealedDigits = [false, false, false, false]; // Resetar também ao iniciar
 
     generateRandomPassword();
     renderGameScreen();
     startTimer();
-} // FECHA chave de initializeGame - Esta deve ser a última linha da função.
+}
 
-// Pode haver um espaço ou comentários aqui
-
-function generateRandomPassword() { // Abre chave de generateRandomPassword
+function generateRandomPassword() {
     correctPassword = "2507";
     console.log("[Frontend] Senha fixa definida (para testes e debug):", correctPassword);
 }
@@ -161,16 +156,13 @@ function renderGameScreen() {
         </div>
     `).join('');
 
-    //Página do game
     gameScreen.innerHTML = `
         <div class="game-container">
-            
             <div class="timer" id="timer-display">${formatTime(timeLeft)}</div>
-
+            <div id="alertBox"></div>
             <div class="puzzles-area">
                 ${puzzlesHTML}
             </div>
-
             <div class="password-panel">
                 <h3>Painel de Saída</h3>
                 <p>Insira os 4 dígitos para abrir a porta:</p>
@@ -196,22 +188,39 @@ function renderGameScreen() {
     document.querySelectorAll('.password-digit-input').forEach((input, index, array) => {
         input.addEventListener('input', (event) => {
             const value = event.target.value;
+
+            // Protege dígitos já revelados para não serem alterados
+            if (revealedDigits[index]) {
+                event.target.value = passwordDigits[index];
+                return;
+            }
+
             if (!/^\d$/.test(value) && value !== '') {
                 event.target.value = '';
                 return;
             }
+
             if (value.length === 1 && index < array.length - 1) {
                 array[index + 1].focus();
             }
+
             passwordDigits[index] = value;
             updateFinalPasswordDisplay();
         });
 
         input.addEventListener('keydown', (event) => {
-            if (event.key === 'Backspace' && input.value === '' && index > 0) {
-                array[index - 1].focus();
-                passwordDigits[index - 1] = '';
-                updateFinalPasswordDisplay();
+            if (event.key === 'Backspace') {
+                if (revealedDigits[index]) {
+                    // Evita apagar dígitos revelados
+                    event.preventDefault();
+                    return;
+                }
+
+                if (input.value === '' && index > 0) {
+                    array[index - 1].focus();
+                    passwordDigits[index - 1] = '';
+                    updateFinalPasswordDisplay();
+                }
             }
         });
     });
@@ -231,7 +240,8 @@ function startTimer() {
         if (timeLeft <= 0) {
             clearInterval(gameInterval);
             timeLeft = 0;
-            alert('Tempo esgotado! A segurança é fundamental, mas você não conseguiu escapar a tempo! Obrigado pela participação!');
+            let message = 'Tempo esgotado! A segurança é fundamental, mas você não conseguiu escapar a tempo! Obrigado pela participação!';
+            showAlert(message);
             endGame(false);
         }
     }, 1000);
@@ -284,6 +294,7 @@ function checkPuzzleAnswer(event) {
 
         const digitToReveal = correctPassword[puzzles[puzzleIndex].digitIndex];
         passwordDigits[puzzles[puzzleIndex].digitIndex] = digitToReveal;
+        revealedDigits[puzzles[puzzleIndex].digitIndex] = true; // Marca como revelado
         updateFinalPasswordDisplay();
     } else {
         incorrectAnswerSound.play();
@@ -312,13 +323,15 @@ function checkFinalPassword() {
     const allPuzzlesSolved = solvedPuzzles.every(isSolved => isSolved);
 
     if (!allPuzzlesSolved) {
-        alert('Amostradinho, você precisa resolver TODOS os enigmas para obter a senha completa!');
+        let message = 'Amostradinho, você precisa resolver TODOS os enigmas para obter a senha completa!';
         applyPenalty();
+        showAlert(message);
         return;
     }
 
     if (enteredPassword.length !== 4 || enteredPasswordArray.some(digit => digit === '')) {
-        alert('Por favor, preencha todos os 4 dígitos da senha!');
+        let message = 'Por favor, preencha todos os 4 dígitos da senha!';
+        showAlert(message);
         applyPenalty();
         return;
     }
@@ -339,10 +352,20 @@ async function endGame(isWin) {
 
     if (isWin) {
         const timeSpent = 300 - timeLeft;
-        await addScoreToRanking(currentTeamName, timeSpent); // CHAMA A FUNÇÃO ASYNC PARA SALVAR
+        await addScoreToRanking(currentTeamName, timeSpent);
     }
 
-    showScreen(startScreen); // Volta para a tela inicial
+    showScreen(startScreen);
+}
+
+function showAlert(message) {
+    alert = document.getElementById('alertBox');
+    alert.style.display = "flex";
+    alert.textContent = message;
+
+    setTimeout(() => {
+        alert.style.display = 'none';
+    }, 4000);
 }
 
 /**
@@ -392,23 +415,22 @@ async function fetchRankingAndDisplay() {
             throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
         }
 
-        ranking = await response.json(); // Atualiza a variável local `ranking`
+        ranking = await response.json();
         console.log("[Frontend] Ranking obtido do backend:", ranking);
-        updateRankingDisplay(); // Renderiza o HTML do ranking
+        updateRankingDisplay();
 
     } catch (error) {
         console.error("[Frontend] Erro no catch ao buscar ranking do backend:", error);
         alert("Ocorreu um erro ao carregar o ranking. Por favor, tente novamente.");
-        ranking = []; // Garante que o ranking esteja vazio se houver erro
-        updateRankingDisplay(); // Exibe um ranking vazio em caso de erro
+        ranking = [];
+        updateRankingDisplay();
     }
 }
 
-
 function updateRankingDisplay() {
-    // O ranking já vem ordenado e limitado do backend
     let rankingHTML = `
         <div class="ranking-container">
+            <i class="bi bi-trophy"></i>
             <h1 class="ranking-title">RANKING DE TEMPOS - SIPAT MARBRASA</h1>
             <ol class="ranking-list">
     `;
