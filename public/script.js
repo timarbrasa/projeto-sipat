@@ -227,6 +227,7 @@ function renderGameScreen() {
 }
 
 function startTimer() {
+    const losePartySound = new Audio('sounds/losePartySound.mp3')
     const displayElement = document.getElementById('timer-display');
     if (!displayElement) return;
 
@@ -238,6 +239,7 @@ function startTimer() {
         displayElement.textContent = formatTime(timeLeft);
 
         if (timeLeft <= 0) {
+            losePartySound.play();
             clearInterval(gameInterval);
             timeLeft = 0;
             let message = 'Tempo esgotado! A segurança é fundamental, mas você não conseguiu escapar a tempo! Obrigado pela participação!';
@@ -311,7 +313,8 @@ function updateFinalPasswordDisplay() {
     }
 }
 
-function checkFinalPassword() {
+async function checkFinalPassword() {
+    const WinnerSound = new Audio('sounds/ganhou.mp3')
     const enteredPasswordArray = [
         document.getElementById('digit1').value,
         document.getElementById('digit2').value,
@@ -337,7 +340,11 @@ function checkFinalPassword() {
     }
 
     if (enteredPassword === correctPassword) {
+        
         alert('Parabéns, você recebeu a senha para usar no cadeado e escapar com segurança! Obrigado pela participação!');
+        WinnerSound.play();
+        await delay(5000); // espera 2 segundos
+        
         endGame(true);
     } else {
         alert('Senha Incorreta! Tente novamente.');
