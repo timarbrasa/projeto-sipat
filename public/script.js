@@ -341,10 +341,7 @@ async function checkFinalPassword() {
 
     if (enteredPassword === correctPassword) {
         
-        alert('Parabéns, você recebeu a senha para usar no cadeado e escapar com segurança! Obrigado pela participação!');
-        WinnerSound.play();
-        await delay(5000); // espera 2 segundos
-        
+        alert('Parabéns, você recebeu a senha para usar no cadeado e escapar com segurança! Obrigado pela participação!'); 
         endGame(true);
     } else {
         alert('Senha Incorreta! Tente novamente.');
@@ -358,8 +355,14 @@ async function endGame(isWin) {
     clearInterval(gameInterval);
 
     if (isWin) {
+        resultBool = true;
         const timeSpent = 300 - timeLeft;
-        await addScoreToRanking(currentTeamName, timeSpent);
+        await addScoreToRanking(currentTeamName, timeSpent, resultBool);
+        
+    }else{
+        resultBool =false;
+        const timeSpent = 300 - timeLeft;
+         await addScoreToRanking(currentTeamName, timeSpent, resultBool);
     }
 
     showScreen(startScreen);
@@ -379,8 +382,9 @@ function showAlert(message) {
  * Adiciona um novo resultado ao ranking, enviando-o para o backend (Sequelize/SQLite).
  * @param {string} team - O nome da equipe.
  * @param {number} time - O tempo de conclusão em segundos.
+ *  @param {bool} resultBool -
  */
-async function addScoreToRanking(team, time) {
+async function addScoreToRanking(team, time, resultBool) {
     console.log(`[Frontend] Tentando salvar ranking: Equipe=${team}, Tempo=${time}`);
     try {
         const response = await fetch(`${BACKEND_URL}/ranking`, {
@@ -388,7 +392,7 @@ async function addScoreToRanking(team, time) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ team, time })
+            body: JSON.stringify({ team, time, resultBool})
         });
 
         console.log(`[Frontend] Resposta do servidor (status): ${response.status}`);

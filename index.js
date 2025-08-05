@@ -1,4 +1,5 @@
 // index.js (Arquivo principal do seu servidor no projeto VideoTest)
+const PlayersResult = require('./models/results.js'); // Caminho relativo ao arquivo
 
 // --- Mantenha suas importações e configurações existentes aqui ---
 const database = require("./db/db"); // Sua conexão de banco de dados existente
@@ -20,6 +21,10 @@ const RankingEntry = database.define('RankingEntry', { // Use 'database' em vez 
     },
     time: {
         type: DataTypes.INTEGER,
+        allowNull: false
+    },
+    win: {
+        type: DataTypes.BOOLEAN,
         allowNull: false
     }
 }, {
@@ -76,16 +81,52 @@ app.get('/ranking', async (req, res) => {
         console.log("[Server-Ranking] Ranking obtido do DB:", ranking.map(entry => entry.toJSON()));
         res.json(ranking.map(entry => entry.toJSON())); // Converte para JSON puro antes de enviar
     } catch (error) {
+        console.log()
         console.error("[Server-Ranking] Erro no endpoint GET /ranking:", error);
         res.status(500).json({ message: "Erro ao obter ranking." });
     }
 });
 
+//endpoint para obter os losers
+app.get('/ranking/getLosers', async (req, res) => {
+    try {
+        const ranking = await RankingEntry.findAll({
+        where: {
+            win: false,
+        }
+        });
+        console.log("[Server-Ranking] losers obtidos do DB:", ranking.map(entry => entry.toJSON()));
+        res.json(ranking.map(entry => entry.toJSON())); // Converte para JSON puro antes de enviar
+    } catch (error) {
+        console.log()
+        console.error("[Server-Ranking] Erro no endpoint GET /ranking:", error);
+        res.status(500).json({ message: "Erro ao obter ranking." });
+    }
+});
+
+//enpoint para obter winners
+app.get('/ranking/getWinners', async (req, res) => {
+    try {
+        const ranking = await RankingEntry.findAll({
+        where: {
+            win: true,
+        }
+        });
+        console.log("[Server-Ranking] losers obtidos do DB:", ranking.map(entry => entry.toJSON()));
+        res.json(ranking.map(entry => entry.toJSON())); // Converte para JSON puro antes de enviar
+    } catch (error) {
+        console.log()
+        console.error("[Server-Ranking] Erro no endpoint GET /ranking:", error);
+        res.status(500).json({ message: "Erro ao obter ranking." });
+    }
+});
+
+
 // Endpoint para adicionar um novo resultado ao ranking
 app.post('/ranking', async (req, res) => {
     console.log("[Server-Ranking] Requisição POST para /ranking");
-    const { team, time } = req.body;
-    console.log(`[Server-Ranking] Dados recebidos: Equipe='${team}', Tempo=${time}`);
+    const { team, time, win } = req.body;
+    console.log(`[Server-Ranking] Dados recebidos: Equipe='${team}', Tempo=${time} resultado= ${win}`);
 
     if (!team || typeof time === 'undefined') {
         console.error("[Server-Ranking] Dados inválidos recebidos para /ranking: Nome da equipe ou tempo ausente.");
@@ -93,7 +134,7 @@ app.post('/ranking', async (req, res) => {
     }
 
     try {
-        const newEntry = await RankingEntry.create({ team, time });
+        const newEntry = await RankingEntry.create({team, time ,win });
         console.log("[Server-Ranking] Nova entrada de ranking criada:", newEntry.toJSON());
 
         // Lógica para manter apenas os 10 melhores no DB
@@ -110,7 +151,6 @@ app.post('/ranking', async (req, res) => {
         res.status(500).json({ message: "Erro ao adicionar ao ranking." });
     }
 });
-
 // --- Rota Principal para servir o HTML do Escape Room ---
 // Esta rota deve ser a ÚLTIMA definida, ANTES de app.listen.
 // Isso garante que suas rotas de API (ex: /videos, /ranking) sejam verificadas primeiro.
@@ -131,7 +171,6 @@ try {
         } catch (error) {
             console.error('[DB] Erro ao limpar dados da tabela RankingEntries:', error);
         }*/
-
         app.listen(9443, () => { // Sua porta original
             console.log('Servidor rodando na porta 9443');
             console.log(`[Server] Acesse seu frontend em: https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`);
