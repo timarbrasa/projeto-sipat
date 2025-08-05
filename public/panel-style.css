@@ -1,5 +1,5 @@
 .painel{
-    background-color: #282828; /* Fundo cinza escuro para os cards das telas */
+    background-color: #121612; /* Fundo cinza escuro para os cards das telas */
     width: 80vw;
     height:98vh;
     border-radius: 10px; 
@@ -9,7 +9,7 @@
     box-sizing: border-box;
     border: 1px solid #333; 
     }
-    .titles{
+    .titles{    
     border-radius: 10px; 
     font-size: 3.4vw;
     font-weight: 600;
@@ -19,14 +19,14 @@
     border-radius: 10px; 
     font-size: 1.2vw;
     font-weight: 600;
-    margin: 5px;
+    margin: 1px;
     }
 
     .painel-winners{
-    background-color: #282828; /* Fundo cinza escuro para os cards das telas */
+    background-color: #1A1F1A; /* Fundo cinza escuro para os cards das telas */
     position: relative;
-    width: 30vw;
-    height:60vh;
+    width: 35vw;
+    height:55vh;
     border-radius: 10px; 
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); 
     font-size: 1vw;
@@ -38,10 +38,10 @@
     }
 
     .painel-losers{
-    background-color: #282828; /* Fundo cinza escuro para os cards das telas */
+    background-color: #1A1F1A; /* Fundo cinza escuro para os cards das telas */
     position: relative;
-    width: 30vw;
-    height:60vh;
+    width: 35vw;
+    height:55vh;
     border-radius: 10px; 
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); 
     font-size: 1vw;
