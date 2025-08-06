@@ -1,5 +1,5 @@
 // script.js (Frontend - Interage com o Backend Sequelize/SQLite)
-
+//import Player from './models/fetchResults/results.js';
 // Seleciona os elementos das diferentes telas
 const startScreen = document.getElementById('start-screen');
 const gameScreen = document.getElementById('game-screen');
@@ -8,13 +8,38 @@ const rankingScreen = document.getElementById('ranking-screen');
 const teamNameInput = document.getElementById('team-name');
 const startButton = document.getElementById('start-button');
 const adminLoginButton = document.getElementById('admin-login-button');
+class PlayersResult {
+  constructor({ createdAt,id, team, time, win }) {
+    this.createdAt = new Date(createdAt);
+    this.id = id;
+    this.team = team;
+    this.time = time;
+    this.win = win;
+  }
 
+  isWinner() {
+    return this.win === true;
+  }
 
+  toString() {
+    return `Equipe: ${this.team} | Tempo: ${this.time}s | ${this.win ? 'Vitória' : 'Derrota'}`;
+  }
+
+  toJSON() {
+    return {
+      id: this.id,
+      team: this.team,
+      time: this.time,
+      win: this.win,
+      createdAt: this.createdAt.toISOString(),
+      updatedAt: this.updatedAt.toISOString()
+    };
+  }
+}
 // Carrega o som
 const somInicio = new Audio('sounds/startSound.mp3');
 const correctAnswerSound = new Audio('sounds/certa.mp3');
 const incorrectAnswerSound = new Audio('sounds/errado.mp3');
-
 
 
 // Elementos da tela de login
@@ -30,7 +55,8 @@ let correctPassword = '';
 let solvedPuzzles = [false, false, false, false];
 let passwordDigits = ['', '', '', ''];
 
-let revealedDigits = [false, false, false, false]; // controla quais dígitos foram revelados
+// Novo array para controlar quais dígitos foram revelados e devem ser protegidos
+let revealedDigits = [false, false, false, false];
 
 // Elemento visual para a penalidade
 const penaltyLight = document.getElementById('penalty-light');
@@ -40,13 +66,7 @@ const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'admin';
 
 // --- URL BASE DO BACKEND ---
-// No Replit, a URL relativa (string vazia) geralmente funciona se o frontend e backend
-// estiverem no mesmo Repl e rodando na mesma porta.
-// Se você continuar tendo problemas de comunicação, use a URL absoluta do seu repl aqui:
-// Exemplo: const BACKEND_URL = `https://SEU_NOME_DO_REPL.SEU_NOME_DE_USUARIO.repl.co`;
-// Você pode encontrar essa URL na aba "Console" ou "Webview" do Replit após rodar o projeto.
-const BACKEND_URL = 'http://localhost:9443'; // Deixe vazio se estiver na mesma URL que o frontend
-
+const BACKEND_URL = 'http://localhost:9443'; // Ajuste conforme necessário
 
 // --- Dados dos Enigmas (personalizáveis) ---
 const puzzles = [
@@ -77,11 +97,13 @@ const puzzles = [
 ];
 
 // --- Sistema de Ranking (agora gerenciado pelo backend) ---
-let ranking = []; // Não precisamos mais carregar do localStorage diretamente aqui
+let ranking = [];
 
 // --- Funções Auxiliares ---
 
 function showScreen(screenToShow) {
+    getLosers();
+    //getwinners();
     startScreen.classList.remove('active');
     gameScreen.classList.remove('active');
     adminLoginScreen.classList.remove('active');
@@ -125,32 +147,88 @@ loginSubmitButton.addEventListener('click', () => {
 
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
         console.log('Login de Administrador bem-sucedido!');
-        fetchRankingAndDisplay(); // Chama a função para buscar e mostrar o ranking
+        fetchRankingAndDisplay();
         showScreen(rankingScreen);
     } else {
-        let message = 'Usuário ou senha incorretos. Tente novamente.';
-        showAlert(message);
+        alert('Usuário ou senha incorretos. Tente novamente.');
         adminPasswordInput.value = '';
     }
 });
 
-// --- Lógica do Jogo Principal (inalterada) ---
+// --- Lógica do Jogo Principal ---
 
-function initializeGame() { // Abre chave de initializeGame
+function initializeGame() {
     timeLeft = 300;
     solvedPuzzles = [false, false, false, false];
     passwordDigits = ['', '', '', ''];
+    revealedDigits = [false, false, false, false]; // Resetar também ao iniciar
 
     generateRandomPassword();
     renderGameScreen();
     startTimer();
-} // FECHA chave de initializeGame - Esta deve ser a última linha da função.
+}
 
-// Pode haver um espaço ou comentários aqui
-
-function generateRandomPassword() { // Abre chave de generateRandomPassword
+function generateRandomPassword() {
     correctPassword = "2507";
     console.log("[Frontend] Senha fixa definida (para testes e debug):", correctPassword);
+}
+
+async function getwinners() {
+    console.log("[Frontend] Tentando buscar ranking do backend...");
+    try {
+        const response = await fetch(`${BACKEND_URL}/ranking/getWinners`);
+        console.log(`[Frontend] Resposta do servidor (status): ${response.status}`);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`[Frontend] Erro HTTP ao buscar ranking: Status ${response.status}, Resposta: ${errorText}`);
+            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+        }
+
+        const winners = await response.json();
+
+        // Cria um array de PlayersResult
+        const players = winners.map(winner => new PlayersResult(winner));
+
+       // console.log(players); // array de instâncias PlayersResult
+
+        // Se quiser iterar e exibir cada um
+        players.forEach(player => {
+            console.log(`ID: ${player.id}, Time: ${player.team}, Tempo: ${player.time}`);
+        });
+
+    } catch (error) {
+        console.error("[Frontend] Erro no catch ao buscar winners do backend:", error);
+    }
+}
+
+async function getLosers() {
+    console.log("[Frontend] Tentando buscar Losers do backend...");
+    try {
+        const response = await fetch(`${BACKEND_URL}/ranking/getLosers`);
+        console.log(`[Frontend] Resposta do servidor (status): ${response.status}`);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`[Frontend] Erro HTTP ao buscar ranking: Status ${response.status}, Resposta: ${errorText}`);
+            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+        }
+
+        const winners = await response.json();
+
+        // Cria um array de PlayersResult
+        const players = winners.map(winner => new PlayersResult(winner));
+
+       // console.log(players); // array de instâncias PlayersResult
+
+        // Se quiser iterar e exibir cada um
+        players.forEach(player => {
+            console.log(`ID: ${player.id}, Time: ${player.team}, Tempo: ${player.time}`);
+        });
+
+    } catch (error) {
+        console.error("[Frontend] Erro no catch ao buscar winners do backend:", error);
+    }
 }
 
 function renderGameScreen() {
@@ -165,18 +243,13 @@ function renderGameScreen() {
         </div>
     `).join('');
 
-    //Página do game
     gameScreen.innerHTML = `
         <div class="game-container">
-            
             <div class="timer" id="timer-display">${formatTime(timeLeft)}</div>
-
             <div id="alertBox"></div>
-
             <div class="puzzles-area">
                 ${puzzlesHTML}
             </div>
-
             <div class="password-panel">
                 <h3>Painel de Saída</h3>
                 <p>Insira os 4 dígitos para abrir a porta:</p>
@@ -202,9 +275,9 @@ function renderGameScreen() {
     document.querySelectorAll('.password-digit-input').forEach((input, index, array) => {
         input.addEventListener('input', (event) => {
             const value = event.target.value;
-    
+
+            // Protege dígitos já revelados para não serem alterados
             if (revealedDigits[index]) {
-        // Impede alteração de dígito já revelado
                 event.target.value = passwordDigits[index];
                 return;
             }
@@ -215,19 +288,26 @@ function renderGameScreen() {
             }
 
             if (value.length === 1 && index < array.length - 1) {
-               array[index + 1].focus();
+                array[index + 1].focus();
             }
 
             passwordDigits[index] = value;
             updateFinalPasswordDisplay();
-});
-
+        });
 
         input.addEventListener('keydown', (event) => {
-            if (event.key === 'Backspace' && input.value === '' && index > 0) {
-                array[index - 1].focus();
-                passwordDigits[index - 1] = '';
-                updateFinalPasswordDisplay();
+            if (event.key === 'Backspace') {
+                if (revealedDigits[index]) {
+                    // Evita apagar dígitos revelados
+                    event.preventDefault();
+                    return;
+                }
+
+                if (input.value === '' && index > 0) {
+                    array[index - 1].focus();
+                    passwordDigits[index - 1] = '';
+                    updateFinalPasswordDisplay();
+                }
             }
         });
     });
@@ -303,6 +383,7 @@ function checkPuzzleAnswer(event) {
 
         const digitToReveal = correctPassword[puzzles[puzzleIndex].digitIndex];
         passwordDigits[puzzles[puzzleIndex].digitIndex] = digitToReveal;
+        revealedDigits[puzzles[puzzleIndex].digitIndex] = true; // Marca como revelado
         updateFinalPasswordDisplay();
     } else {
         incorrectAnswerSound.play();
@@ -310,11 +391,6 @@ function checkPuzzleAnswer(event) {
         feedbackDiv.className = 'puzzle-feedback incorrect';
         applyPenalty();
     }
-
-    passwordDigits[puzzles[puzzleIndex].digitIndex] = digitToReveal;
-    revealedDigits[puzzles[puzzleIndex].digitIndex] = true; // marca que esse dígito foi revelado
-    updateFinalPasswordDisplay();
-
 }
 
 function updateFinalPasswordDisplay() {
@@ -351,17 +427,11 @@ async function checkFinalPassword() {
     }
 
     if (enteredPassword === correctPassword) {
-<<<<<<< Updated upstream
         
         alert('Parabéns, você recebeu a senha para usar no cadeado e escapar com segurança! Obrigado pela participação!'); 
-=======
-        let message = 'Parabéns, você recebeu a senha para usar no cadeado e escapar com segurança! Obrigado pela participação!';
-        showAlert(message);
->>>>>>> Stashed changes
         endGame(true);
     } else {
-        let message = 'Senha Incorreta! Tente novamente.';
-        showAlert(message);
+        alert('Senha Incorreta! Tente novamente.');
         applyPenalty();
     }
 }
@@ -372,68 +442,62 @@ async function endGame(isWin) {
     clearInterval(gameInterval);
 
     if (isWin) {
-        resultBool = true;
+  
         const timeSpent = 300 - timeLeft;
-<<<<<<< Updated upstream
-        await addScoreToRanking(currentTeamName, timeSpent, resultBool);
+        await addScoreToRanking(currentTeamName, timeSpent, isWin);
         
-    }else{
-        resultBool =false;
-        const timeSpent = 300 - timeLeft;
-         await addScoreToRanking(currentTeamName, timeSpent, resultBool);
-=======
-        await addScoreToRanking(currentTeamName, timeSpent); // CHAMA A FUNÇÃO ASYNC PARA SALVAR
->>>>>>> Stashed changes
+    }else if(!isWin){
+  
+        await addScoreToRanking(currentTeamName, 300, isWin);
     }
 
-    showScreen(startScreen); // Volta para a tela inicial
+    showScreen(startScreen);
 }
 
 function showAlert(message) {
     alert = document.getElementById('alertBox');
     alert.style.display = "flex";
     alert.textContent = message;
-    
-     setTimeout(() => {
-       alert.style.display = 'none';
-  }, 4000);
+
+    setTimeout(() => {
+        alert.style.display = 'none';
+    }, 4000);
 }
 
 /**
  * Adiciona um novo resultado ao ranking, enviando-o para o backend (Sequelize/SQLite).
  * @param {string} team - O nome da equipe.
  * @param {number} time - O tempo de conclusão em segundos.
- *  @param {bool} resultBool -
+ *  @param {bool} win -
  */
-async function addScoreToRanking(team, time, resultBool) {
-    console.log(`[Frontend] Tentando salvar ranking: Equipe=${team}, Tempo=${time}`);
+async function addScoreToRanking(team, time, win) {
+    console.log(`[Frontend] Tentando salvar ranking: Equipe=${team}, Tempo=${time}, Win=${win}`);
     try {
         const response = await fetch(`${BACKEND_URL}/ranking`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ team, time, resultBool})
+            body: JSON.stringify({ team, time, win }) // <-- agora envia win
         });
 
-        console.log(`[Frontend] Resposta do servidor (status): ${response.status}`);
         if (!response.ok) {
             const errorText = await response.text();
-            console.error(`[Frontend] Erro HTTP ao salvar ranking: Status ${response.status}, Resposta: ${errorText}`);
-            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
+            console.error(`[Frontend] Erro HTTP ao salvar ranking: ${errorText}`);
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const result = await response.json();
-        console.log("[Frontend] Resultado do POST para ranking (sucesso):", result);
+        console.log("[Frontend] Resultado salvo no backend:", result);
 
     } catch (error) {
-        console.error("[Frontend] Erro no catch ao salvar o ranking no backend:", error);
+        console.error("[Frontend] Erro ao salvar ranking no backend:", error);
         alert("Ocorreu um erro ao salvar seu tempo no ranking. Tente novamente mais tarde.");
     }
 }
 
 /**
- Busca o ranking do backend (Sequelize/SQLite) e o exibe na tela.
+ * Busca o ranking do backend (Sequelize/SQLite) e o exibe na tela.
  */
 async function fetchRankingAndDisplay() {
     console.log("[Frontend] Tentando buscar ranking do backend...");
@@ -447,21 +511,19 @@ async function fetchRankingAndDisplay() {
             throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
         }
 
-        ranking = await response.json(); // Atualiza a variável local `ranking`
+        ranking = await response.json();
         console.log("[Frontend] Ranking obtido do backend:", ranking);
-        updateRankingDisplay(); // Renderiza o HTML do ranking
+        updateRankingDisplay();
 
     } catch (error) {
         console.error("[Frontend] Erro no catch ao buscar ranking do backend:", error);
         alert("Ocorreu um erro ao carregar o ranking. Por favor, tente novamente.");
-        ranking = []; // Garante que o ranking esteja vazio se houver erro
-        updateRankingDisplay(); // Exibe um ranking vazio em caso de erro
+        ranking = [];
+        updateRankingDisplay();
     }
 }
 
-
 function updateRankingDisplay() {
-    // O ranking já vem ordenado e limitado do backend
     let rankingHTML = `
         <div class="ranking-container">
             <i class="bi bi-trophy"></i>

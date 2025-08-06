@@ -1,5 +1,5 @@
 // index.js (Arquivo principal do seu servidor no projeto VideoTest)
-const PlayersResult = require('./models/results.js'); // Caminho relativo ao arquivo
+const PlayersResult = require('./models/fetchResults/results.js'); // Caminho relativo ao arquivo
 
 // --- Mantenha suas importações e configurações existentes aqui ---
 const database = require("./db/db"); // Sua conexão de banco de dados existente
