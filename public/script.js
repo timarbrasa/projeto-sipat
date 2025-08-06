@@ -9,10 +9,12 @@ const teamNameInput = document.getElementById('team-name');
 const startButton = document.getElementById('start-button');
 const adminLoginButton = document.getElementById('admin-login-button');
 
+
 // Carrega o som
 const somInicio = new Audio('sounds/startSound.mp3');
 const correctAnswerSound = new Audio('sounds/certa.mp3');
 const incorrectAnswerSound = new Audio('sounds/errado.mp3');
+
 
 
 // Elementos da tela de login
@@ -28,8 +30,7 @@ let correctPassword = '';
 let solvedPuzzles = [false, false, false, false];
 let passwordDigits = ['', '', '', ''];
 
-// Novo array para controlar quais dígitos foram revelados e devem ser protegidos
-let revealedDigits = [false, false, false, false];
+let revealedDigits = [false, false, false, false]; // controla quais dígitos foram revelados
 
 // Elemento visual para a penalidade
 const penaltyLight = document.getElementById('penalty-light');
@@ -39,7 +40,13 @@ const ADMIN_USERNAME = 'admin';
 const ADMIN_PASSWORD = 'admin';
 
 // --- URL BASE DO BACKEND ---
-const BACKEND_URL = 'http://localhost:9443'; // Ajuste conforme necessário
+// No Replit, a URL relativa (string vazia) geralmente funciona se o frontend e backend
+// estiverem no mesmo Repl e rodando na mesma porta.
+// Se você continuar tendo problemas de comunicação, use a URL absoluta do seu repl aqui:
+// Exemplo: const BACKEND_URL = `https://SEU_NOME_DO_REPL.SEU_NOME_DE_USUARIO.repl.co`;
+// Você pode encontrar essa URL na aba "Console" ou "Webview" do Replit após rodar o projeto.
+const BACKEND_URL = 'http://localhost:9443'; // Deixe vazio se estiver na mesma URL que o frontend
+
 
 // --- Dados dos Enigmas (personalizáveis) ---
 const puzzles = [
@@ -70,7 +77,7 @@ const puzzles = [
 ];
 
 // --- Sistema de Ranking (agora gerenciado pelo backend) ---
-let ranking = [];
+let ranking = []; // Não precisamos mais carregar do localStorage diretamente aqui
 
 // --- Funções Auxiliares ---
 
@@ -118,28 +125,30 @@ loginSubmitButton.addEventListener('click', () => {
 
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
         console.log('Login de Administrador bem-sucedido!');
-        fetchRankingAndDisplay();
+        fetchRankingAndDisplay(); // Chama a função para buscar e mostrar o ranking
         showScreen(rankingScreen);
     } else {
-        alert('Usuário ou senha incorretos. Tente novamente.');
+        let message = 'Usuário ou senha incorretos. Tente novamente.';
+        showAlert(message);
         adminPasswordInput.value = '';
     }
 });
 
-// --- Lógica do Jogo Principal ---
+// --- Lógica do Jogo Principal (inalterada) ---
 
-function initializeGame() {
+function initializeGame() { // Abre chave de initializeGame
     timeLeft = 300;
     solvedPuzzles = [false, false, false, false];
     passwordDigits = ['', '', '', ''];
-    revealedDigits = [false, false, false, false]; // Resetar também ao iniciar
 
     generateRandomPassword();
     renderGameScreen();
     startTimer();
-}
+} // FECHA chave de initializeGame - Esta deve ser a última linha da função.
 
-function generateRandomPassword() {
+// Pode haver um espaço ou comentários aqui
+
+function generateRandomPassword() { // Abre chave de generateRandomPassword
     correctPassword = "2507";
     console.log("[Frontend] Senha fixa definida (para testes e debug):", correctPassword);
 }
@@ -156,13 +165,18 @@ function renderGameScreen() {
         </div>
     `).join('');
 
+    //Página do game
     gameScreen.innerHTML = `
         <div class="game-container">
+            
             <div class="timer" id="timer-display">${formatTime(timeLeft)}</div>
+
             <div id="alertBox"></div>
+
             <div class="puzzles-area">
                 ${puzzlesHTML}
             </div>
+
             <div class="password-panel">
                 <h3>Painel de Saída</h3>
                 <p>Insira os 4 dígitos para abrir a porta:</p>
@@ -188,9 +202,9 @@ function renderGameScreen() {
     document.querySelectorAll('.password-digit-input').forEach((input, index, array) => {
         input.addEventListener('input', (event) => {
             const value = event.target.value;
-
-            // Protege dígitos já revelados para não serem alterados
+    
             if (revealedDigits[index]) {
+        // Impede alteração de dígito já revelado
                 event.target.value = passwordDigits[index];
                 return;
             }
@@ -201,26 +215,19 @@ function renderGameScreen() {
             }
 
             if (value.length === 1 && index < array.length - 1) {
-                array[index + 1].focus();
+               array[index + 1].focus();
             }
 
             passwordDigits[index] = value;
             updateFinalPasswordDisplay();
-        });
+});
+
 
         input.addEventListener('keydown', (event) => {
-            if (event.key === 'Backspace') {
-                if (revealedDigits[index]) {
-                    // Evita apagar dígitos revelados
-                    event.preventDefault();
-                    return;
-                }
-
-                if (input.value === '' && index > 0) {
-                    array[index - 1].focus();
-                    passwordDigits[index - 1] = '';
-                    updateFinalPasswordDisplay();
-                }
+            if (event.key === 'Backspace' && input.value === '' && index > 0) {
+                array[index - 1].focus();
+                passwordDigits[index - 1] = '';
+                updateFinalPasswordDisplay();
             }
         });
     });
@@ -296,7 +303,6 @@ function checkPuzzleAnswer(event) {
 
         const digitToReveal = correctPassword[puzzles[puzzleIndex].digitIndex];
         passwordDigits[puzzles[puzzleIndex].digitIndex] = digitToReveal;
-        revealedDigits[puzzles[puzzleIndex].digitIndex] = true; // Marca como revelado
         updateFinalPasswordDisplay();
     } else {
         incorrectAnswerSound.play();
@@ -304,6 +310,11 @@ function checkPuzzleAnswer(event) {
         feedbackDiv.className = 'puzzle-feedback incorrect';
         applyPenalty();
     }
+
+    passwordDigits[puzzles[puzzleIndex].digitIndex] = digitToReveal;
+    revealedDigits[puzzles[puzzleIndex].digitIndex] = true; // marca que esse dígito foi revelado
+    updateFinalPasswordDisplay();
+
 }
 
 function updateFinalPasswordDisplay() {
@@ -340,11 +351,17 @@ async function checkFinalPassword() {
     }
 
     if (enteredPassword === correctPassword) {
+<<<<<<< Updated upstream
         
         alert('Parabéns, você recebeu a senha para usar no cadeado e escapar com segurança! Obrigado pela participação!'); 
+=======
+        let message = 'Parabéns, você recebeu a senha para usar no cadeado e escapar com segurança! Obrigado pela participação!';
+        showAlert(message);
+>>>>>>> Stashed changes
         endGame(true);
     } else {
-        alert('Senha Incorreta! Tente novamente.');
+        let message = 'Senha Incorreta! Tente novamente.';
+        showAlert(message);
         applyPenalty();
     }
 }
@@ -357,25 +374,29 @@ async function endGame(isWin) {
     if (isWin) {
         resultBool = true;
         const timeSpent = 300 - timeLeft;
+<<<<<<< Updated upstream
         await addScoreToRanking(currentTeamName, timeSpent, resultBool);
         
     }else{
         resultBool =false;
         const timeSpent = 300 - timeLeft;
          await addScoreToRanking(currentTeamName, timeSpent, resultBool);
+=======
+        await addScoreToRanking(currentTeamName, timeSpent); // CHAMA A FUNÇÃO ASYNC PARA SALVAR
+>>>>>>> Stashed changes
     }
 
-    showScreen(startScreen);
+    showScreen(startScreen); // Volta para a tela inicial
 }
 
 function showAlert(message) {
     alert = document.getElementById('alertBox');
     alert.style.display = "flex";
     alert.textContent = message;
-
-    setTimeout(() => {
-        alert.style.display = 'none';
-    }, 4000);
+    
+     setTimeout(() => {
+       alert.style.display = 'none';
+  }, 4000);
 }
 
 /**
@@ -412,7 +433,7 @@ async function addScoreToRanking(team, time, resultBool) {
 }
 
 /**
- * Busca o ranking do backend (Sequelize/SQLite) e o exibe na tela.
+ Busca o ranking do backend (Sequelize/SQLite) e o exibe na tela.
  */
 async function fetchRankingAndDisplay() {
     console.log("[Frontend] Tentando buscar ranking do backend...");
@@ -426,19 +447,21 @@ async function fetchRankingAndDisplay() {
             throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
         }
 
-        ranking = await response.json();
+        ranking = await response.json(); // Atualiza a variável local `ranking`
         console.log("[Frontend] Ranking obtido do backend:", ranking);
-        updateRankingDisplay();
+        updateRankingDisplay(); // Renderiza o HTML do ranking
 
     } catch (error) {
         console.error("[Frontend] Erro no catch ao buscar ranking do backend:", error);
         alert("Ocorreu um erro ao carregar o ranking. Por favor, tente novamente.");
-        ranking = [];
-        updateRankingDisplay();
+        ranking = []; // Garante que o ranking esteja vazio se houver erro
+        updateRankingDisplay(); // Exibe um ranking vazio em caso de erro
     }
 }
 
+
 function updateRankingDisplay() {
+    // O ranking já vem ordenado e limitado do backend
     let rankingHTML = `
         <div class="ranking-container">
             <i class="bi bi-trophy"></i>
