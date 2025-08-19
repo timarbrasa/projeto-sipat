@@ -1,5 +1,4 @@
 // script.js (Frontend - Interage com o Backend Sequelize/SQLite)
-//import Player from './models/fetchResults/results.js';
 // Seleciona os elementos das diferentes telas
 const startScreen = document.getElementById('start-screen');
 const gameScreen = document.getElementById('game-screen');
@@ -103,7 +102,7 @@ let ranking = [];
 
 function showScreen(screenToShow) {
     getLosers();
-    //getwinners();
+    getwinners();
     startScreen.classList.remove('active');
     gameScreen.classList.remove('active');
     adminLoginScreen.classList.remove('active');
@@ -399,7 +398,9 @@ function updateFinalPasswordDisplay() {
         display.textContent = passwordDigits.map(digit => digit === '' ? '-' : digit).join('');
     }
 }
-
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 async function checkFinalPassword() {
     const WinnerSound = new Audio('sounds/ganhou.mp3')
     const enteredPasswordArray = [
@@ -413,7 +414,7 @@ async function checkFinalPassword() {
     const allPuzzlesSolved = solvedPuzzles.every(isSolved => isSolved);
 
     if (!allPuzzlesSolved) {
-        let message = 'Amostradinho, você precisa resolver TODOS os enigmas para obter a senha completa!';
+        let message = 'Você precisa resolver TODOS os enigmas para obter a senha completa!';
         applyPenalty();
         showAlert(message);
         return;
@@ -426,9 +427,9 @@ async function checkFinalPassword() {
         return;
     }
 
-    if (enteredPassword === correctPassword) {
-        
-        alert('Parabéns, você recebeu a senha para usar no cadeado e escapar com segurança! Obrigado pela participação!'); 
+    if (enteredPassword === correctPassword && allPuzzlesSolved) {
+        showAlert('Parabéns, você recebeu a senha para usar no cadeado e escapar com segurança! Obrigado pela participação!');
+         await sleep(1000);
         endGame(true);
     } else {
         alert('Senha Incorreta! Tente novamente.');
