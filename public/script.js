@@ -71,26 +71,26 @@ const BACKEND_URL = 'http://localhost:9443'; // Ajuste conforme necessário
 const puzzles = [
     {
         id: 'puzzle1',
-        question: '🧩 Toda prevenção começa com uma palavra. Monte o quebra-cabeça e descubra o segredo para evitar acidentes. 🧠',
-        answer: '1',
+        question: '🧩 Toda prevenção começa com uma palavra. Encontre a palavra e descubra o segredo para evitar acidentes. 🧠',
+        answer: 'conscientização',
         digitIndex: 0
     },
     {
         id: 'puzzle2',
         question: '🧤 Nem todo equipamento está pronto para o jogo. Inspecione os EPIs e descubra qual está fora das regras da segurança. 🕵️',
-        answer: '2',
+        answer: 'capacete',
         digitIndex: 1
     },
     {
         id: 'puzzle3',
         question: '⚠️ Um risco escondido pode comprometer toda a equipe. Encontre o perigo e proteja sua rota para a vitória. 🔍',
-        answer: '3',
+        answer: 'fio',
         digitIndex: 2
     },
     {
         id: 'puzzle4',
-        question: '🔥 O setor está em chamas! Analise o mapa e escolha a rota que garante a saída segura da equipe. 🚪',
-        answer: '4',
+        question: '🔥 Algum setor está em chamas! Informe a rota que garante a saída segura da equipe. 🚪',
+        answer: 'rota a',
         digitIndex: 3
     }
 ];
@@ -99,6 +99,10 @@ const puzzles = [
 let ranking = [];
 
 // --- Funções Auxiliares ---
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function showScreen(screenToShow) {
     getLosers();
@@ -291,7 +295,7 @@ function renderGameScreen() {
             }
 
             passwordDigits[index] = value;
-            updateFinalPasswordDisplay();
+            //updateFinalPasswordDisplay();
         });
 
         input.addEventListener('keydown', (event) => {
@@ -305,7 +309,7 @@ function renderGameScreen() {
                 if (input.value === '' && index > 0) {
                     array[index - 1].focus();
                     passwordDigits[index - 1] = '';
-                    updateFinalPasswordDisplay();
+                    //updateFinalPasswordDisplay();
                 }
             }
         });
@@ -313,23 +317,23 @@ function renderGameScreen() {
 }
 
 function startTimer() {
-    const losePartySound = new Audio('sounds/losePartySound.mp3')
+    const losePartySound = new Audio('sounds/perdeu.mp3')
     const displayElement = document.getElementById('timer-display');
     if (!displayElement) return;
 
     displayElement.textContent = formatTime(timeLeft);
 
     clearInterval(gameInterval);
-    gameInterval = setInterval(() => {
+    gameInterval = setInterval(async () => {
         timeLeft--;
         displayElement.textContent = formatTime(timeLeft);
-
-        if (timeLeft <= 0) {
+        if (timeLeft < 0) {
             losePartySound.play();
             clearInterval(gameInterval);
             timeLeft = 0;
             let message = 'Tempo esgotado! A segurança é fundamental, mas você não conseguiu escapar a tempo! Obrigado pela participação!';
             showAlert(message);
+            await sleep(23000);
             endGame(false);
         }
     }, 1000);
@@ -354,7 +358,7 @@ function applyPenalty() {
     }
     console.log("[Frontend] Penalidade! -15 segundos.");
 }
-
+ let number = 0;
 function checkPuzzleAnswer(event) {
     const button = event.target;
     const puzzleIndex = parseInt(button.dataset.puzzleIndex);
@@ -370,7 +374,7 @@ function checkPuzzleAnswer(event) {
 
     const userAnswer = input.value.trim().toLowerCase();
     const correctAnswer = puzzles[puzzleIndex].answer.toLowerCase();
-
+   
     if (userAnswer === correctAnswer) {
         correctAnswerSound.play();
         feedbackDiv.textContent = 'Correto! Você encontrou um dígito!';
@@ -380,10 +384,11 @@ function checkPuzzleAnswer(event) {
         input.disabled = true;
         button.disabled = true;
 
-        const digitToReveal = correctPassword[puzzles[puzzleIndex].digitIndex];
-        passwordDigits[puzzles[puzzleIndex].digitIndex] = digitToReveal;
-        revealedDigits[puzzles[puzzleIndex].digitIndex] = true; // Marca como revelado
-        updateFinalPasswordDisplay();
+        //const digitToReveal = correctPassword[puzzles[puzzleIndex].digitIndex];
+        //passwordDigits[puzzles[puzzleIndex].digitIndex] = digitToReveal;
+        //revealedDigits[puzzles[puzzleIndex].digitIndex] = true; // Marca como revelado
+        number +=1;
+        updateFinalPasswordDisplay(number);
     } else {
         incorrectAnswerSound.play();
         feedbackDiv.textContent = 'Incorreto! Tente novamente.';
@@ -392,17 +397,17 @@ function checkPuzzleAnswer(event) {
     }
 }
 
-function updateFinalPasswordDisplay() {
+function updateFinalPasswordDisplay(number) {
+    let texto = "2507";
+    let primeiros = texto.substring(0,number);
+
     const display = document.getElementById('final-password-display');
     if (display) {
-        display.textContent = passwordDigits.map(digit => digit === '' ? '-' : digit).join('');
+        display.textContent =primeiros;
     }
 }
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+
 async function checkFinalPassword() {
-    const WinnerSound = new Audio('sounds/ganhou.mp3')
     const enteredPasswordArray = [
         document.getElementById('digit1').value,
         document.getElementById('digit2').value,
@@ -427,9 +432,12 @@ async function checkFinalPassword() {
         return;
     }
 
-    if (enteredPassword === correctPassword && allPuzzlesSolved) {
-        showAlert('Parabéns, você recebeu a senha para usar no cadeado e escapar com segurança! Obrigado pela participação!');
-         await sleep(1000);
+    if (enteredPassword === correctPassword) {
+        const WinnerSound = new Audio('sounds/ganhou.mp3')
+        showAlert('Parabéns, você recebeu o numero da chave para usar no cadeado e escapar com segurança! Obrigado pela participação!');
+     WinnerSound.play();
+        number = 0
+         await sleep(23000);
         endGame(true);
     } else {
         alert('Senha Incorreta! Tente novamente.');
