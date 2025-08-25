@@ -17,18 +17,19 @@ html, body {
     border: 1px solid #333;
     margin:0;
     }
-    .titles{    
-    border-radius: 10px; 
-    font-size: 3.4vw;
-    font-weight: 600;
-    margin: 5px
-    }
     .subtitle{
     border-radius: 10px; 
     font-size: 1.2vw;
     font-weight: 600;
-    margin: 1vh;
     }
+    .titles{    
+    border-radius: 10px; 
+    font-size: 3.4vw;
+    font-weight: 600;
+    margin-top: 2vh;
+    margin-bottom: 0px;
+    }
+    
     .painel-winners{
     background-color: #1A1F1A;
     position: relative;
