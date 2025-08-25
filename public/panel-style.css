@@ -1,3 +1,10 @@
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* remove scroll vertical e horizontal */
+}
 .painel{
     background-color: #121612; /* Fundo cinza escuro para os cards das telas */
     width: 80vw;
@@ -8,7 +15,7 @@
     text-align: center;
     box-sizing: border-box;
     border: 1px solid #333;
-   
+    margin:0;
     }
     .titles{    
     border-radius: 10px; 
@@ -20,10 +27,10 @@
     border-radius: 10px; 
     font-size: 1.2vw;
     font-weight: 600;
-    margin: 1px;
+    margin: 1vh;
     }
     .painel-winners{
-    background-color: #1A1F1A; /* Fundo cinza escuro para os cards das telas */
+    background-color: #1A1F1A;
     position: relative;
     flex-direction: c;
     display: flex;
@@ -44,17 +51,18 @@
     list-style-type: none;
     padding: 0;
     margin: 0;
+    height: 90%;
   }
   .lista-losers {
     list-style-type: none;
     padding: 0;
     margin: 0;
+    height: 90%;
   }
-
-    .lista-vencedores-div{
-      background-color: #22FF84;
-      height: 1vh;;
-    }
+  .lista-vencedores-div{
+     background-color: #22FF84;
+     height: 1vh;;
+  }
 .lista-nomes li {
   background-color: #0853017c;
   margin-bottom: 1vh;
@@ -63,8 +71,8 @@
   font-size: 1vw;
   padding-left: 3vh;
   align-items: center;
+  height:4.5vh;
   width: 23vw;
-  height: 4.7vh;
   border-radius: 8px;
   font-weight: bold;
   color: #ffffff;
@@ -80,8 +88,8 @@
   padding-left: 3vh;
   align-items: center;
   width: 23vw;
-  height: 4.7vh;
   border-radius: 8px;
+  height:4.5vh;
   font-weight: bold;
   color: #ffffff;
   border: 1px solid #5f0909;
@@ -92,6 +100,7 @@
     }
 
     .painel-losers{
+
     background-color: #1A1F1A; /* Fundo cinza escuro para os cards das telas */
     position: relative;
     display: flex;

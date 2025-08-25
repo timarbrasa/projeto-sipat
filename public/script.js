@@ -7,34 +7,7 @@ const rankingScreen = document.getElementById('ranking-screen');
 const teamNameInput = document.getElementById('team-name');
 const startButton = document.getElementById('start-button');
 const adminLoginButton = document.getElementById('admin-login-button');
-class PlayersResult {
-  constructor({ createdAt,id, team, time, win }) {
-    this.createdAt = new Date(createdAt);
-    this.id = id;
-    this.team = team;
-    this.time = time;
-    this.win = win;
-  }
 
-  isWinner() {
-    return this.win === true;
-  }
-
-  toString() {
-    return `Equipe: ${this.team} | Tempo: ${this.time}s | ${this.win ? 'Vitória' : 'Derrota'}`;
-  }
-
-  toJSON() {
-    return {
-      id: this.id,
-      team: this.team,
-      time: this.time,
-      win: this.win,
-      createdAt: this.createdAt.toISOString(),
-      updatedAt: this.updatedAt.toISOString()
-    };
-  }
-}
 // Carrega o som
 const somInicio = new Audio('sounds/startSound.mp3');
 const correctAnswerSound = new Audio('sounds/certa.mp3');
@@ -78,7 +51,7 @@ const puzzles = [
     {
         id: 'puzzle2',
         question: '🧤 Nem todo equipamento está pronto para o jogo. Inspecione os EPIs e descubra qual está fora das regras da segurança. 🕵️',
-        answer: 'capacete',
+        answer: 'luva',
         digitIndex: 1
     },
     {
@@ -105,8 +78,6 @@ function sleep(ms) {
 }
 
 function showScreen(screenToShow) {
-    getLosers();
-    getwinners();
     startScreen.classList.remove('active');
     gameScreen.classList.remove('active');
     adminLoginScreen.classList.remove('active');
@@ -176,63 +147,8 @@ function generateRandomPassword() {
     console.log("[Frontend] Senha fixa definida (para testes e debug):", correctPassword);
 }
 
-async function getwinners() {
-    console.log("[Frontend] Tentando buscar ranking do backend...");
-    try {
-        const response = await fetch(`${BACKEND_URL}/ranking/getWinners`);
-        console.log(`[Frontend] Resposta do servidor (status): ${response.status}`);
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`[Frontend] Erro HTTP ao buscar ranking: Status ${response.status}, Resposta: ${errorText}`);
-            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
-        }
 
-        const winners = await response.json();
-
-        // Cria um array de PlayersResult
-        const players = winners.map(winner => new PlayersResult(winner));
-
-       // console.log(players); // array de instâncias PlayersResult
-
-        // Se quiser iterar e exibir cada um
-        players.forEach(player => {
-            console.log(`ID: ${player.id}, Time: ${player.team}, Tempo: ${player.time}`);
-        });
-
-    } catch (error) {
-        console.error("[Frontend] Erro no catch ao buscar winners do backend:", error);
-    }
-}
-
-async function getLosers() {
-    console.log("[Frontend] Tentando buscar Losers do backend...");
-    try {
-        const response = await fetch(`${BACKEND_URL}/ranking/getLosers`);
-        console.log(`[Frontend] Resposta do servidor (status): ${response.status}`);
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error(`[Frontend] Erro HTTP ao buscar ranking: Status ${response.status}, Resposta: ${errorText}`);
-            throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
-        }
-
-        const winners = await response.json();
-
-        // Cria um array de PlayersResult
-        const players = winners.map(winner => new PlayersResult(winner));
-
-       // console.log(players); // array de instâncias PlayersResult
-
-        // Se quiser iterar e exibir cada um
-        players.forEach(player => {
-            console.log(`ID: ${player.id}, Time: ${player.team}, Tempo: ${player.time}`);
-        });
-
-    } catch (error) {
-        console.error("[Frontend] Erro no catch ao buscar winners do backend:", error);
-    }
-}
 
 function renderGameScreen() {
       somInicio.play();
@@ -240,7 +156,7 @@ function renderGameScreen() {
         <div class="puzzle-box" id="${puzzle.id}">
             <h3>Enigma ${index + 1}</h3>
             <p>${puzzle.question}</p>
-            <input type="text" class="puzzle-input" placeholder="Sua resposta...">
+            <input type="text" class="puzzle-input" placeholder="Sua resposta..." autocomplete="off">
             <button class="puzzle-button" data-puzzle-index="${index}">Verificar</button>
             <div class="puzzle-feedback"></div>
         </div>
@@ -257,10 +173,11 @@ function renderGameScreen() {
                 <h3>Painel de Saída</h3>
                 <p>Insira os 4 dígitos para abrir a porta:</p>
                 <div class="password-input-group">
-                    <input type="text" class="password-digit-input" id="digit1" maxlength="1" pattern="[0-9]" inputmode="numeric">
-                    <input type="text" class="password-digit-input" id="digit2" maxlength="1" pattern="[0-9]" inputmode="numeric">
-                    <input type="text" class="password-digit-input" id="digit3" maxlength="1" pattern="[0-9]" inputmode="numeric">
-                    <input type="text" class="password-digit-input" id="digit4" maxlength="1" pattern="[0-9]" inputmode="numeric">
+                   <input type="text" class="password-digit-input" id="digit1" name="no-autofill-1" maxlength="1" pattern="[0-9]" inputmode="numeric" autocomplete="off">
+                   <input type="text" class="password-digit-input" id="digit2" name="no-autofill-2" maxlength="1" pattern="[0-9]" inputmode="numeric" autocomplete="off">
+                   <input type="text" class="password-digit-input" id="digit3" name="no-autofill-3" maxlength="1" pattern="[0-9]" inputmode="numeric" autocomplete="off">
+                   <input type="text" class="password-digit-input" id="digit4" name="no-autofill-4" maxlength="1" pattern="[0-9]" inputmode="numeric" autocomplete="off">
+
                 </div>
                 <div class="password-display" id="final-password-display">----</div>
                 <button class="password-submit-button" id="submit-password-button">Tentar Abrir</button>
@@ -399,11 +316,15 @@ function checkPuzzleAnswer(event) {
 
 function updateFinalPasswordDisplay(number) {
     let texto = "2507";
-    let primeiros = texto.substring(0,number);
+    let primeiros = texto.substring(0, number);
+    let carac = "";
+    for (let i = 0; i < 4 -number; i++) {
+        carac += "-";
+    }
 
     const display = document.getElementById('final-password-display');
     if (display) {
-        display.textContent =primeiros;
+        display.textContent = `${primeiros}${carac}`;
     }
 }
 

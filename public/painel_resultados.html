@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,31 +9,27 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
 </head>
 <body>
-  <!-- React container -->
-  <div id="lista-react"></div>
-
   <div class="painel">
     <h1 class="titles">ESCAPE ROOM | MARBRASA</h1>
     <p class="subtitle">Resultados Finais</p>
     <div class="row">
       <div class="painel-winners">
         <h2><i class="bi bi-check-circle"></i>Conseguiram Escapar</h2>
-         <div id="lista-vencedores"></div> <!-- Aqui será renderizada a lista -->
-
+         <div class="liPanel"id="lista-vencedores"></div> 
       </div>
       <div class="painel-losers">
         <h2><i class="bi bi-x-circle"></i>Não Conseguiram Escapar</h2>
-         <div class="lista-vencedores-div" id="lista-perdedores"></div> <!-- Aqui será renderizada a lista -->
+         <div id="lista-perdedores"></div> 
       </div>
     </div>
     <div class="row_itens">
       <div class="item-1">
-        <p>10</p>
-        <p>total</p>
+        <p id="winners-count">0</p>
+        <p>Ganhadores</p>
       </div>
       <div class="item-2">
-        <p>10</p>
-        <p>total</p>
+        <p id="losers-count">0</p>
+        <p>Perdedores</p>
       </div>
       <div class="item-3">
         <p>10</p>
@@ -40,40 +37,61 @@
       </div>
     </div>
   </div>
-
+  
   <!-- React e ReactDOM via CDN -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-
+   <script src="painel_script.js"></script>
  <script>
-  const e = React.createElement;
-   const f = React.createElement;
+  const winnersGroup = new Set();
+    const LosersGroup = new Set();
+ window.addEventListener('DOMContentLoaded', async () => {
+  // Carrega vencedores
+  const winners = await getWinners();
+  winners.forEach(player => {
+    winnersGroup.add(player.team);
+  });
 
-  function ListaWinners() {
-    const nomes = ["Beatriz", "Beatriz", "Carlos", "Daniel","Beatriz","Beatriz","Beatriz","Beatriz"];
-   return e(
-  'ul',
-  { className: 'lista-nomes' },
-  nomes.map((nome, index) =>
-    e('li', { key: index }, nome)
-  )
-);
-  }
-
-    function ListaLosers () {
-    const losers = ["Beatriz","Beatriz","Beatriz", "Beatriz", "Carlos", "Daniel","Beatriz","Beatriz","Beatriz","Beatriz"];
-   return f(
-  'ul',
-  { className: 'lista-losers' },
-  losers.map((losers, index) =>
-    f('li', { key: index }, losers)
-  )
-);
-  }
+   document.getElementById('winners-count').textContent = winnersGroup.size;
   const winnersListR = ReactDOM.createRoot(document.getElementById('lista-vencedores'));
-    const LosersList = ReactDOM.createRoot(document.getElementById('lista-perdedores'));
   winnersListR.render(e(ListaWinners));
-  LosersList.render(f(ListaLosers));
+
+  // Carrega perdedores
+  const losers = await getLosers();
+ if(losers != null){
+  losers.forEach(player => {
+    LosersGroup.add(player.team);
+  });
+ }
+  document.getElementById('losers-count').textContent = LosersGroup.size;
+  const losersListR = ReactDOM.createRoot(document.getElementById('lista-perdedores'));
+  losersListR.render(f(ListaLosers));
+});
+
+  const e = React.createElement;
+  const f = React.createElement;
+
+ function ListaWinners() {
+  const nomes = Array.from(winnersGroup); 
+  return React.createElement(
+    'ul',
+    { className: 'lista-nomes' },
+    nomes.map((nome, index) =>
+      React.createElement('li', { key: index }, nome)
+    )
+  );
+}
+
+ function ListaLosers() {
+  const nomes = Array.from(LosersGroup); 
+  return React.createElement(
+    'ul',
+  { className: 'lista-losers' },
+    nomes.map((nome, index) =>
+      React.createElement('li', { key: index }, nome)
+    )
+  );
+}
 </script>
 </body>
 </html>
