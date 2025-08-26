@@ -27,7 +27,9 @@ class PlayersResult {
   }
 }
 
-
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 async function getWinners() {
     try {
         const response = await fetch(`http://localhost:9443/ranking/getWinners`);
@@ -71,3 +73,5 @@ async function getLosers() {
         console.error("[Frontend] Erro no catch ao buscar winners do backend:", error);
     }
 }
+
+

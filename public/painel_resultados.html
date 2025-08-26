@@ -45,28 +45,30 @@
  <script>
   const winnersGroup = new Set();
     const LosersGroup = new Set();
- window.addEventListener('DOMContentLoaded', async () => {
-  // Carrega vencedores
+window.addEventListener('DOMContentLoaded', async () => {
   const winners = await getWinners();
-  winners.forEach(player => {
-    winnersGroup.add(player.team);
-  });
-
-   document.getElementById('winners-count').textContent = winnersGroup.size;
+  winners.forEach(player => winnersGroup.add(player.team));
+  document.getElementById('winners-count').textContent = winnersGroup.size;
   const winnersListR = ReactDOM.createRoot(document.getElementById('lista-vencedores'));
   winnersListR.render(e(ListaWinners));
 
-  // Carrega perdedores
   const losers = await getLosers();
- //- location.reload(); // recarrega a página completamente
- if(losers != null){
-  losers.forEach(player => {
-    LosersGroup.add(player.team);
-  });
- }
+  if (losers != null) {
+    losers.forEach(player => LosersGroup.add(player.team));
+  }
   document.getElementById('losers-count').textContent = LosersGroup.size;
   const losersListR = ReactDOM.createRoot(document.getElementById('lista-perdedores'));
   losersListR.render(f(ListaLosers));
+    localStorage.setItem('timer',"");
+  setInterval(() => {
+   const valor = localStorage.getItem('timer');
+     var horario = getHorario(); // pode chamar sua função aqui
+     if(valor != horario){ 
+      localStorage.setItem('timer', horario);
+      console.log("mudou");
+     //location.reload();
+     }   
+  }, 2000);
 });
 
   const e = React.createElement;
@@ -83,6 +85,11 @@
   );
 }
 
+ function getHorario(){
+ const horario = localStorage.getItem('ultimoHorario');
+ return horario;
+ }
+
  function ListaLosers() {
   const nomes = Array.from(LosersGroup); 
   return React.createElement(
@@ -93,6 +100,8 @@
     )
   );
 }
+
+
 </script>
 </body>
 </html>

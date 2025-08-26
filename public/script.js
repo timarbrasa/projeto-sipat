@@ -233,6 +233,18 @@ function renderGameScreen() {
     });
 }
 
+function atualizarTime() {
+    const agora = new Date();
+
+    const horas = agora.getHours().toString().padStart(2, '0');
+    const minutos = agora.getMinutes().toString().padStart(2, '0');
+    const segundos = agora.getSeconds().toString().padStart(2, '0');
+
+    const horario = `${horas}:${minutos}:${segundos}`;
+    
+    localStorage.setItem('ultimoHorario', horario);
+}
+
 function startTimer() {
     const losePartySound = new Audio('sounds/perdeu.mp3')
     const displayElement = document.getElementById('timer-display');
@@ -381,6 +393,7 @@ async function endGame(isWin) {
   
         await addScoreToRanking(currentTeamName, 300, isWin);
     }
+    atualizarTime();
     showScreen(startScreen);
 }
 
@@ -424,6 +437,7 @@ async function addScoreToRanking(team, time, win) {
         console.error("[Frontend] Erro ao salvar ranking no backend:", error);
         alert("Ocorreu um erro ao salvar seu tempo no ranking. Tente novamente mais tarde.");
     }
+    
 }
 
 /**
