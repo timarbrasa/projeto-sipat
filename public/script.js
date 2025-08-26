@@ -244,7 +244,7 @@ function startTimer() {
     gameInterval = setInterval(async () => {
         timeLeft--;
         displayElement.textContent = formatTime(timeLeft);
-        if (timeLeft < 0) {
+            if (timeLeft == 0) {
             losePartySound.play();
             clearInterval(gameInterval);
             timeLeft = 0;
@@ -253,6 +253,7 @@ function startTimer() {
             await sleep(23000);
             endGame(false);
         }
+
     }, 1000);
 }
 
@@ -356,9 +357,10 @@ async function checkFinalPassword() {
     if (enteredPassword === correctPassword) {
         const WinnerSound = new Audio('sounds/ganhou.mp3')
         showAlert('Parabéns, você recebeu o numero da chave para usar no cadeado e escapar com segurança! Obrigado pela participação!');
-     WinnerSound.play();
+         clearInterval(gameInterval);
+        WinnerSound.play();
         number = 0
-         await sleep(23000);
+        await sleep(23000);
         endGame(true);
     } else {
         alert('Senha Incorreta! Tente novamente.');
@@ -370,7 +372,6 @@ async function checkFinalPassword() {
 
 async function endGame(isWin) {
     clearInterval(gameInterval);
-
     if (isWin) {
   
         const timeSpent = 300 - timeLeft;
@@ -380,7 +381,6 @@ async function endGame(isWin) {
   
         await addScoreToRanking(currentTeamName, 300, isWin);
     }
-
     showScreen(startScreen);
 }
 
@@ -391,7 +391,7 @@ function showAlert(message) {
 
     setTimeout(() => {
         alert.style.display = 'none';
-    }, 4000);
+    }, 23000);
 }
 
 /**

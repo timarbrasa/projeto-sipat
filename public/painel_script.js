@@ -49,7 +49,6 @@ async function getWinners() {
     }
 }
 
-
 async function getLosers() {
     console.log("[Frontend] Tentando buscar Losers do backend...");
     try {

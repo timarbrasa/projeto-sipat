@@ -58,6 +58,7 @@
 
   // Carrega perdedores
   const losers = await getLosers();
+ //- location.reload(); // recarrega a página completamente
  if(losers != null){
   losers.forEach(player => {
     LosersGroup.add(player.team);
