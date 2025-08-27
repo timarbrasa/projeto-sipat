@@ -26,7 +26,7 @@ let timeLeft = 300; // 5 minutos em segundos (5 minutos = 300 segundos)
 let correctPassword = '';
 let solvedPuzzles = [false, false, false, false];
 let passwordDigits = ['', '', '', ''];
-
+let buttonStatus = true; 
 // Novo array para controlar quais dígitos foram revelados e devem ser protegidos
 let revealedDigits = [false, false, false, false];
 
@@ -130,7 +130,6 @@ loginSubmitButton.addEventListener('click', () => {
 });
 
 // --- Lógica do Jogo Principal ---
-
 function initializeGame() {
     timeLeft = 300;
     solvedPuzzles = [false, false, false, false];
@@ -189,8 +188,10 @@ function renderGameScreen() {
     document.querySelectorAll('.puzzle-button').forEach(button => {
         button.addEventListener('click', checkPuzzleAnswer);
     });
+    document.getElementById('submit-password-button').addEventListener('click', () => {
+    if(buttonStatus) checkFinalPassword();
+});
 
-    document.getElementById('submit-password-button').addEventListener('click', checkFinalPassword);
 
     document.querySelectorAll('.password-digit-input').forEach((input, index, array) => {
         input.addEventListener('input', (event) => {
@@ -342,7 +343,7 @@ function updateFinalPasswordDisplay(number) {
 }
 
 async function checkFinalPassword() {
-    const enteredPasswordArray = [
+        const enteredPasswordArray = [
         document.getElementById('digit1').value,
         document.getElementById('digit2').value,
         document.getElementById('digit3').value,
@@ -367,6 +368,7 @@ async function checkFinalPassword() {
     }
 
     if (enteredPassword === correctPassword) {
+        buttonStatus = false;
         const WinnerSound = new Audio('sounds/ganhou.mp3')
         showAlert('Parabéns, você recebeu o numero da chave para usar no cadeado e escapar com segurança! Obrigado pela participação!');
          clearInterval(gameInterval);
@@ -378,6 +380,8 @@ async function checkFinalPassword() {
         alert('Senha Incorreta! Tente novamente.');
         applyPenalty();
     }
+  
+    
 }
 
 // --- Lógica de Fim de Jogo e Ranking (Atualizada para usar o Backend) ---
