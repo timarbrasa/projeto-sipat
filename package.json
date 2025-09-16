@@ -6,7 +6,6 @@
   "scripts": {
     "start": "node index.js",
     "abrir-html": "start public/painel_resultados.html"
-
   },
   "keywords": [],
   "author": "",

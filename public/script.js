@@ -257,10 +257,10 @@ function startTimer() {
     gameInterval = setInterval(async () => {
         timeLeft--;
         displayElement.textContent = formatTime(timeLeft);
-            if (timeLeft == 0) {
+            if (timeLeft <= 0) {
             losePartySound.play();
             clearInterval(gameInterval);
-            timeLeft = 0;
+            displayElement.textContent = "00:00";
             let message = 'Tempo esgotado! A segurança é fundamental, mas você não conseguiu escapar a tempo! Obrigado pela participação!';
             showAlert(message);
             await sleep(23000);
